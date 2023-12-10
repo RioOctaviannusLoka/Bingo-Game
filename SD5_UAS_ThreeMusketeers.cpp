@@ -2,14 +2,28 @@
 #include <conio.h>
 #include <time.h>
 #include <set>
+#include <windows.h>
 
 using namespace std;
 
-//definisikan seluruh warna teks
+//define all text color
 #define RESET   "\033[0m"
 #define GREEN   "\033[32m"
 #define RED     "\033[31m"
 #define YELLOW  "\033[33m"
+#define CYAN    "\033[36m"
+
+//function to set cursor position
+void gotoxy(int x, int y)
+{
+    HANDLE hConsoleOutput;
+    COORD dwCursorPosition;
+    cout.flush();
+    dwCursorPosition.X = x;
+    dwCursorPosition.Y = y;
+    hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleCursorPosition(hConsoleOutput,dwCursorPosition);
+}
 
 int BOARD_SIZE;
 set<int> drawnNumbers; //contains the numbers that have been generated before
@@ -20,15 +34,14 @@ set<int> drawnNumbers; //contains the numbers that have been generated before
 
 struct BingoInfo{
     int playerCard[5][5];
-    // int drawnCount;
 };
 
 //Ask User to input board size
 bool initializeBoardSize(){
     cout << "Masukkan ukuran dari papan bingo : ";
     cin >> BOARD_SIZE;
-    if(BOARD_SIZE < 3 || BOARD_SIZE > 5){
-        cout << "Papan Bingo harus berukuran diantara 3x3 ~ 5x5" << endl;
+    if(BOARD_SIZE < 3 || BOARD_SIZE > 9){
+        cout << RED << "Papan Bingo harus berukuran diantara 3x3 ~ 9x9" << endl << RESET;
         return 0;
     }
     return 1;
@@ -40,7 +53,7 @@ int setNumberOfPlayers(){
     cout << "Masukkan jumlah pemain : ";
     cin >> numberOfPlayers;
     if(numberOfPlayers < 2 || numberOfPlayers > 4) 
-        cout << "Jumlah pemain harus diantara 2 ~ 4" << endl;
+        cout << RED << "Jumlah pemain harus diantara 2 ~ 4" << endl << RESET;
     return numberOfPlayers;
 }
 
@@ -66,20 +79,31 @@ void initializeGame(int numOfPlayers, BingoInfo players[]){
 
 //display all of the players' card and show the number that has been drawn in the card
 void displayPlayersCard(int numOfPlayers, BingoInfo players[]){
+    int x = 0, y = 0;
     for(int playerIndex = 0; playerIndex < numOfPlayers; playerIndex++){
-        cout<<"Pemain "<<playerIndex+1<<endl;
+        gotoxy(x, y);
+        cout << CYAN << "Pemain " << playerIndex + 1 << RESET;
+        y++;
+
         for(int row = 0; row < BOARD_SIZE; row++){
             for(int column = 0; column < BOARD_SIZE; column++){
+                //if the number has been drawn, then print the number with RED color
                 if(drawnNumbers.find(players[playerIndex].playerCard[row][column]) != drawnNumbers.end()){
-                    cout<< RED <<players[playerIndex].playerCard[row][column] << " " <<RESET;
+                    gotoxy(x, y);
+                    cout << RED << players[playerIndex].playerCard[row][column] << RESET;
+                    x += 4;
                 } else{
-                    cout<<players[playerIndex].playerCard[row][column] << " ";
+                    gotoxy(x, y);
+                    cout << players[playerIndex].playerCard[row][column];
+                    x += 4;
                 }
             }
-            cout<<endl;
+            x = 0;
+            y++;
         }
-        cout<<endl;
+        y++;
     }
+    cout<<endl;
 }
 
 //draw a random number that has never been generated before in the board
@@ -106,13 +130,13 @@ bool checkWinner(BingoInfo player){
                 drawnNumberCount++;
             }
         }
-        //if all numbers in a row is have been drawn, then the player wins
+        //if all numbers in a row have been drawn, then the player wins
         if(drawnNumberCount == BOARD_SIZE){
             return 1;
         }
     }
 
-    //check if all numbers in a column is have been drawn
+    //check if all numbers in a column have been drawn
     for(int column = 0; column < BOARD_SIZE; column++){
         drawnNumberCount = 0;
         for(int row = 0; row < BOARD_SIZE; row++){
@@ -128,6 +152,72 @@ bool checkWinner(BingoInfo player){
 
     //if the conditions above not fulfilled, then the player hasn't win
     return 0;
+}
+
+//display the winner's card
+void displayWinner(BingoInfo winner){
+    int x = 0, y = 0, drawnNumberCount = 0;
+    for(int row = 0; row < BOARD_SIZE; row++){
+        for(int column = 0; column < BOARD_SIZE; column++){
+            //if the number has been drawn, then print the number with RED color
+            if(drawnNumbers.find(winner.playerCard[row][column]) != drawnNumbers.end()){
+                gotoxy(x, y);
+                cout << RED << winner.playerCard[row][column] << RESET;
+                x+=4;
+            } else{
+                gotoxy(x, y);
+                cout << winner.playerCard[row][column];
+                x+=4;
+            }
+        }
+        x = 0;
+        y++;
+    }
+
+    //check if all numbers in a row have been drawn
+    x = 0, y = 0;
+    for(int row = 0; row < BOARD_SIZE; row++){
+        drawnNumberCount = 0;
+        for(int column = 0; column < BOARD_SIZE; column++){
+            if(drawnNumbers.find(winner.playerCard[row][column]) != drawnNumbers.end()){
+                drawnNumberCount++;
+            }
+        }
+        //if all numbers in a row have been drawn, then make all the output of the numbers in the row to be GREEN text
+        if(drawnNumberCount == BOARD_SIZE){
+            for(int col = 0; col < BOARD_SIZE; col++){
+                gotoxy(x, y);
+                cout << GREEN << winner.playerCard[row][col] << RESET;
+                x+=4;
+            }
+        }
+        y++;
+    }
+
+    //check if all numbers in a column have been drawn
+    x = 0, y = 0;
+    for(int column = 0; column < BOARD_SIZE; column++){
+        drawnNumberCount = 0;
+        for(int row = 0; row < BOARD_SIZE; row++){
+            if(drawnNumbers.find(winner.playerCard[row][column]) != drawnNumbers.end()){
+                drawnNumberCount++;
+            }
+        }
+        //if all numbers in a column have been drawn, then make all the output of the numbers in the column to be GREEN text
+        if(drawnNumberCount == BOARD_SIZE){
+            for(int r = 0; r < BOARD_SIZE; r++){
+                gotoxy(x, y);
+                cout << GREEN << winner.playerCard[r][column] << RESET;
+                y+=1;
+            }
+        }
+        x+=4;
+    }
+
+    //set the cursor position into after the winner's card display
+    x = 0;
+    y = BOARD_SIZE;
+    gotoxy(x,y);
 }
 
 //Main function to start and play the game
@@ -146,7 +236,7 @@ void playBingo(){
 
     BingoInfo playersData[playerNumbers]; //Players data declaration
     initializeGame(playerNumbers, playersData);  //Initialize all players' board numbers    
-    cout << "\nTekan sembarang tombol untuk memulai permainan!!!\n";
+    cout << YELLOW << "\nTekan sembarang tombol untuk memulai permainan!!!\n" << RESET;
     getch();
 
     //Start the game and check the winner
@@ -158,11 +248,11 @@ void playBingo(){
         displayPlayersCard(playerNumbers, playersData);
 
         //draw the number
-        cout << "Tekan sembarang tombol untuk mengundi angka!!!\n";
+        cout << YELLOW << "\nTekan sembarang tombol untuk mengundi angka!!!\n" << RESET;
         getch();
         int number = drawNumber(); 
-        cout<<"Angka yang didapat adalah "<< number << endl;
-        cout << "Tekan sembarang tombol untuk melanjutkan permainan ...\n";
+        cout <<"Angka yang didapat adalah "<< RED << number << RESET << endl;
+        cout << YELLOW << "\nTekan sembarang tombol untuk melanjutkan permainan ...\n" << RESET;
         getch();
 
         for(int playerIndex = 0; playerIndex < playerNumbers; playerIndex++){
@@ -174,8 +264,11 @@ void playBingo(){
         }
     } while(winner == -1);
 
-    //show the winner
-    cout<<"\nPemenangnya adalah Pemain "<< winner+1 <<endl;
+    //show the winner's card and congratulation text
+    system("cls");
+    displayWinner(playersData[winner]);
+    cout << "\nPemenangnya adalah Pemain " << CYAN << winner + 1 << endl << RESET;
+    cout << YELLOW << "Selamat, Andalah pemenang dari game Bingo ini!!!\n" << RESET;
 }
 
 //Main Program
