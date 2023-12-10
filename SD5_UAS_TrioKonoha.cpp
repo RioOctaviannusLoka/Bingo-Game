@@ -50,7 +50,7 @@ bool initializeBoardSize(){
 //Ask user to input the number of player
 int setNumberOfPlayers(){
     int numberOfPlayers;
-    cout << "Masukkan jumlah pemain : ";
+    cout << "Masukkan jumlah pemain           : ";
     cin >> numberOfPlayers;
     if(numberOfPlayers < 2 || numberOfPlayers > 4) 
         cout << RED << "Jumlah pemain harus diantara 2 ~ 4" << endl << RESET;
@@ -267,7 +267,7 @@ void playBingo(){
     //show the winner's card and congratulation text
     system("cls");
     displayWinner(playersData[winner]);
-    cout << "\nPemenangnya adalah Pemain " << CYAN << winner + 1 << endl << RESET;
+    cout << "\nPemenangnya adalah " << CYAN << "Pemain " << winner + 1 << endl << RESET;
     cout << YELLOW << "Selamat, Andalah pemenang dari game Bingo ini!!!\n" << RESET;
 }
 
