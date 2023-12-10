@@ -58,6 +58,20 @@ void initializeGame(int numOfPlayers, BingoInfo players[]){
     }
 }
 
+//display all of the players' card and show the number that has been drawn in the card
+void displayPlayersCard(int numOfPlayers, BingoInfo players[]){
+    for(int playerIndex = 0; playerIndex < numOfPlayers; playerIndex++){
+        cout<<"Pemain "<<playerIndex+1<<endl;
+        for(int row = 0; row < BOARD_SIZE; row++){
+            for(int column = 0; column < BOARD_SIZE; column++){
+                cout<<players[playerIndex].playerCard[row][column] << " ";
+            }
+            cout<<endl;
+        }
+        cout<<endl;
+    }
+}
+
 //draw a random number that has never been generated before in the board
 int drawNumber(){
     int totalBoardNumbers = BOARD_SIZE * BOARD_SIZE; //set the maximum number in the board
@@ -135,32 +149,26 @@ void playBingo(){
     } while(playerNumbers < 2 || playerNumbers > 4);
 
     BingoInfo playersData[playerNumbers]; //Players data declaration
-    initializeGame(playerNumbers, playersData);  //Initialize all players' board numbers
-    
-     //testing
-    for(int i = 0; i < playerNumbers; i++){
-        cout<<"pemain "<<i+1<<endl;
-        for(int j = 0; j < BOARD_SIZE; j++){
-            for(int k = 0; k < BOARD_SIZE; k++){
-                cout<<playersData[i].playerCard[j][k] << " ";
-            }
-            cout<<endl;
-        }
-        cout<<endl;
-    }
+    initializeGame(playerNumbers, playersData);  //Initialize all players' board numbers    
     cout << "\nTekan sembarang tombol untuk memulai permainan!!!\n";
     getch();
 
     //Start the game and check the winner
     int winner = -1;
     do{
+        system("cls");
+
         //display all of the players' bingo card (rombak supaya bisa dibuat 2 buah playersData yg isinya sama) 
+        displayPlayersCard(playerNumbers, playersData);
 
         //draw the number
-        cout << "\nTekan sembarang tombol untuk mengundi angka!!!\n";
+        cout << "Tekan sembarang tombol untuk mengundi angka!!!\n";
         getch();
         int number = drawNumber(); 
         cout<<"Angka yang didapat adalah "<< number << endl;
+        cout << "Tekan sembarang tombol untuk melanjutkan permainan ...\n";
+        getch();
+
         for(int playerIndex = 0; playerIndex < playerNumbers; playerIndex++){
             updateCard(playerNumbers, playersData, number); //update player card data
             bool isWin = checkWinner(playersData[playerIndex]); //check if the player wins
@@ -172,7 +180,7 @@ void playBingo(){
     } while(winner == -1);
 
     //show the winner
-    cout<<"Pemenangnya adalah pemain "<< winner+1 <<endl;
+    cout<<"Pemenangnya adalah Pemain "<< winner+1 <<endl;
 }
 
 //Main Program
