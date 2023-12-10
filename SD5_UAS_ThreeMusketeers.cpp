@@ -5,6 +5,12 @@
 
 using namespace std;
 
+//definisikan seluruh warna teks
+#define RESET   "\033[0m"
+#define GREEN   "\033[32m"
+#define RED     "\033[31m"
+#define YELLOW  "\033[33m"
+
 int BOARD_SIZE;
 set<int> drawnNumbers; //contains the numbers that have been generated before
 
@@ -64,7 +70,11 @@ void displayPlayersCard(int numOfPlayers, BingoInfo players[]){
         cout<<"Pemain "<<playerIndex+1<<endl;
         for(int row = 0; row < BOARD_SIZE; row++){
             for(int column = 0; column < BOARD_SIZE; column++){
-                cout<<players[playerIndex].playerCard[row][column] << " ";
+                if(drawnNumbers.find(players[playerIndex].playerCard[row][column]) != drawnNumbers.end()){
+                    cout<< RED <<players[playerIndex].playerCard[row][column] << " " <<RESET;
+                } else{
+                    cout<<players[playerIndex].playerCard[row][column] << " ";
+                }
             }
             cout<<endl;
         }
@@ -79,53 +89,39 @@ int drawNumber(){
     do{
         randomNumber = (rand() % totalBoardNumbers) + 1; //make a random number between 1 and totalBoardNumbers
     } while(drawnNumbers.count(randomNumber) > 0); //check whether the randomNumber is present in the generatedNumbers
+    //insert the randomNumber to drawnNumbers so that it cannot be drawn ever again
+    drawnNumbers.insert(randomNumber);
     return randomNumber;
-}
-
-//update every player card after the number has been drawn
-void updateCard(int numOfPlayers, BingoInfo players[], int drawnNumber){
-    for(int playerIndex = 0; playerIndex < numOfPlayers; playerIndex++){
-        //insert the drawnNumber to drawnNumbers so that it cannot be drawn ever again
-        drawnNumbers.insert(drawnNumber);
-        for(int row = 0; row < BOARD_SIZE; row++){
-            for(int column = 0; column < BOARD_SIZE; column++){
-                if(players[playerIndex].playerCard[row][column] == drawnNumber){
-                    //Mark the number which is equal to drawnNumber in Arruy as 0  
-                    players[playerIndex].playerCard[row][column] = 0; 
-                    break;
-                }
-            }
-        }
-    }
 }
 
 //Check if the player has reach the pattern
 bool checkWinner(BingoInfo player){
-    int zeroCount; //save the count of zeros in a row or in a column
-    //check if all numbers in a row is 0
+    int drawnNumberCount; //save the count of drawn number in a row or in a column
+    //check if all numbers in a row have been drawn
     for(int row = 0; row < BOARD_SIZE; row++){
-        zeroCount = 0;
+        drawnNumberCount = 0;
         for(int column = 0; column < BOARD_SIZE; column++){
-            if(player.playerCard[row][column] == 0){
-                zeroCount++;
+            // drawnNumbers.find(players[playerIndex].playerCard[row][column]) != drawnNumbers.end()
+            if(drawnNumbers.find(player.playerCard[row][column]) != drawnNumbers.end()){
+                drawnNumberCount++;
             }
         }
-        //if all numbers in a row is zero, then the player wins
-        if(zeroCount == BOARD_SIZE){
+        //if all numbers in a row is have been drawn, then the player wins
+        if(drawnNumberCount == BOARD_SIZE){
             return 1;
         }
     }
 
-    //check if all numbers in a column is 0
+    //check if all numbers in a column is have been drawn
     for(int column = 0; column < BOARD_SIZE; column++){
-        zeroCount = 0;
+        drawnNumberCount = 0;
         for(int row = 0; row < BOARD_SIZE; row++){
-            if(player.playerCard[column][row] == 0){
-                zeroCount++;
+            if(drawnNumbers.find(player.playerCard[row][column]) != drawnNumbers.end()){
+                drawnNumberCount++;
             }
         }
-        //if all numbers in a column is zero, then the player wins
-        if(zeroCount == BOARD_SIZE){
+        //if all numbers in a column have been drawn, then the player wins
+        if(drawnNumberCount == BOARD_SIZE){
             return 1;
         }
     }
@@ -170,7 +166,6 @@ void playBingo(){
         getch();
 
         for(int playerIndex = 0; playerIndex < playerNumbers; playerIndex++){
-            updateCard(playerNumbers, playersData, number); //update player card data
             bool isWin = checkWinner(playersData[playerIndex]); //check if the player wins
             //if player win, then exit the loop
             if(isWin){
@@ -180,7 +175,7 @@ void playBingo(){
     } while(winner == -1);
 
     //show the winner
-    cout<<"Pemenangnya adalah Pemain "<< winner+1 <<endl;
+    cout<<"\nPemenangnya adalah Pemain "<< winner+1 <<endl;
 }
 
 //Main Program
