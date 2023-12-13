@@ -28,10 +28,6 @@ void gotoxy(int x, int y)
 int BOARD_SIZE;
 set<int> drawnNumbers; //contains the numbers that have been generated before
 
-/* struct BingoCard{
-    int numbers[10][10];
-}; */
-
 struct BingoInfo{
     int playerCard[5][5];
 };
@@ -246,6 +242,13 @@ void playBingo(){
 
         //display all of the players' bingo card (rombak supaya bisa dibuat 2 buah playersData yg isinya sama) 
         displayPlayersCard(playerNumbers, playersData);
+
+        //display all numbers that have been drawn
+        cout << endl << YELLOW << "Angka yang telah diundi : " << RESET;
+        for(auto drawNumber : drawnNumbers){
+            cout << GREEN << drawNumber << " ";
+        }
+        cout << endl;
 
         //draw the number
         cout << YELLOW << "\nTekan sembarang tombol untuk mengundi angka!!!\n" << RESET;
