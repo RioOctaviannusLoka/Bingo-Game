@@ -1,5 +1,5 @@
 #include <iostream>
-#include <conio.h>
+#include <conio.h> 
 #include <time.h>
 #include <set>
 #include <windows.h>
@@ -13,6 +13,13 @@ using namespace std;
 #define YELLOW  "\033[33m"
 #define CYAN    "\033[36m"
 
+int BOARD_SIZE;
+set<int> drawnNumbers; //contains the numbers that have been generated before
+
+struct BingoInfo{
+    int playerCard[9][9];
+};
+
 //function to set cursor position
 void gotoxy(int x, int y)
 {
@@ -24,13 +31,6 @@ void gotoxy(int x, int y)
     hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleCursorPosition(hConsoleOutput,dwCursorPosition);
 }
-
-int BOARD_SIZE;
-set<int> drawnNumbers; //contains the numbers that have been generated before
-
-struct BingoInfo{
-    int playerCard[5][5];
-};
 
 //Ask User to input board size
 bool initializeBoardSize(){
@@ -120,8 +120,7 @@ bool checkWinner(BingoInfo player){
     //check if all numbers in a row have been drawn
     for(int row = 0; row < BOARD_SIZE; row++){
         drawnNumberCount = 0;
-        for(int column = 0; column < BOARD_SIZE; column++){
-            // drawnNumbers.find(players[playerIndex].playerCard[row][column]) != drawnNumbers.end()
+        for(int column = 0; column < BOARD_SIZE; column++){          
             if(drawnNumbers.find(player.playerCard[row][column]) != drawnNumbers.end()){
                 drawnNumberCount++;
             }
